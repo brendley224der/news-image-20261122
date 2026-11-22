@@ -97,6 +97,24 @@ class Canvas:
                 self.px[i + 1] = g
                 self.px[i + 2] = b
 
+    def circle(self, cx, cy, r, color):
+        """A 1px circle outline (midpoint algorithm)."""
+        x, y, d = 0, r, 1 - r
+        while x <= y:
+            for px, py in ((cx + x, cy + y), (cx - x, cy + y),
+                           (cx + x, cy - y), (cx - x, cy - y),
+                           (cx + y, cy + x), (cx - y, cy + x),
+                           (cx + y, cy - x), (cx - y, cy - x)):
+                if 0 <= px < self.w and 0 <= py < self.h:
+                    i = (py * self.w + px) * 3
+                    self.px[i], self.px[i + 1], self.px[i + 2] = color
+            if d < 0:
+                d += 2 * x + 3
+            else:
+                d += 2 * (x - y) + 5
+                y -= 1
+            x += 1
+
     def text(self, x, y, s, scale, color):
         """Draw uppercase text; unknown glyphs become blanks."""
         cx = x
@@ -160,7 +178,10 @@ def build_page():
     m = 40  # margin
     inner = W - 2 * m
 
-    # Masthead.
+    # Masthead, with a small globe emblem in the left margin.
+    c.circle(m + 28, 68, 28, BLUE)
+    c.rect(m + 28, 40, 1, 56, BLUE)
+    c.rect(m, 68, 56, 1, BLUE)
     c.center(40, "THE WORLD TODAY", 8, INK)
     c.text(m, 116, "SUNDAY 22 NOVEMBER 2026", 2, BLUE)
     right = "SIX STORIES THAT DEFINED THE DAY"
@@ -215,11 +236,10 @@ def build_page():
     y += 16
 
     # Fifth story, full width: Estonia closes its border with Russia.
-    story(c, m, y, inner,
-          "EUROPE", "ESTONIA TO CLOSE ITS BORDER WITH RUSSIA",
-          "TALLINN SAID IT WILL SHUT ITS BORDER WITH RUSSIA. MOSCOW DECRIED "
-          "A NEW IRON CURTAIN.", head_scale=3)
-    y += 118
+    y = story(c, m, y, inner,
+              "EUROPE", "ESTONIA TO CLOSE ITS BORDER WITH RUSSIA",
+              "TALLINN SAID IT WILL SHUT ITS BORDER WITH RUSSIA. MOSCOW DECRIED "
+              "A NEW IRON CURTAIN.", head_scale=3) + 28
     hrule(c, m, y, inner, INK, 1)
     y += 14
 
